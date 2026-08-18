@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deck-onepager"
+version = "0.1.0"
+description = "Generate a one-page, TEN Capital-branded founder & team assessment from a pitch deck."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "typer>=0.12",
+    "rich>=13.7",
+    "pdfplumber>=0.11",
+    "PyMuPDF>=1.24",
+    "python-pptx>=1.0",
+    "anthropic>=0.40",
+    "pydantic>=2.7",
+    "reportlab>=4.1",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.14",
+    "ruff>=0.5",
+    "httpx>=0.27",
+    "deck-onepager[web]",
+]
+
+[project.scripts]
+onepager = "onepager.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/onepager"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# ui.py is one HTML/CSS template literal; wrapping markup to a Python line budget
+# would only make it harder to read.
+"src/onepager/web/ui.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

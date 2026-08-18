@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+samples/*
+!samples/README.md
+out/
+*_Team_OnePager.pdf
+
+# out/ is scratch; docs/example.png is committed for the README

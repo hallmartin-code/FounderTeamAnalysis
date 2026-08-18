@@ -1,0 +1,220 @@
+{
+  "company_name": "[COMPANY NAME]",
+  "one_line_business": "[ONE-LINE DESCRIPTION OF WHAT THIS BUSINESS DOES, MAX 160 CHARACTERS]",
+  "stage_and_raise": "[STAGE · ROUND SIZE · INSTRUMENT · CAP OR VALUATION]",
+  "sector": "[SECTOR / SUB-SECTOR]",
+  "what_this_business_requires": [
+    "[REQUIRED CAPABILITY 1 — SHORT LABEL, MAX 8 WORDS]",
+    "[REQUIRED CAPABILITY 2]",
+    "[REQUIRED CAPABILITY 3]",
+    "[REQUIRED CAPABILITY 4 — OPTIONAL]",
+    "[REQUIRED CAPABILITY 5 — OPTIONAL]"
+  ],
+  "team": [
+    {
+      "name": "[PERSON NAME]",
+      "role": "[ROLE AS STATED IN DECK]",
+      "category": "founder",
+      "stated_background": "[BACKGROUND EXACTLY AS STATED IN THE DECK]",
+      "full_time": "yes",
+      "relevance_to_business": "[ONE LINE: WHY THIS PERSON MATTERS FOR THIS SPECIFIC BUSINESS]",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ]
+    },
+    {
+      "name": "[PERSON NAME]",
+      "role": "[ROLE AS STATED IN DECK]",
+      "category": "employee",
+      "stated_background": "[BACKGROUND EXACTLY AS STATED IN THE DECK]",
+      "full_time": "no",
+      "relevance_to_business": "[ONE LINE OF RELEVANCE TO THIS BUSINESS]",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ]
+    },
+    {
+      "name": "[PERSON NAME]",
+      "role": "[ROLE AS STATED IN DECK]",
+      "category": "board",
+      "stated_background": null,
+      "full_time": "not stated",
+      "relevance_to_business": "[ONE LINE OF RELEVANCE TO THIS BUSINESS]",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ]
+    },
+    {
+      "name": "[PERSON NAME]",
+      "role": "[ROLE AS STATED IN DECK]",
+      "category": "advisor",
+      "stated_background": null,
+      "full_time": "not stated",
+      "relevance_to_business": "[ONE LINE OF RELEVANCE TO THIS BUSINESS]",
+      "citations": []
+    },
+    {
+      "name": "[PERSON NAME]",
+      "role": "[ROLE AS STATED IN DECK]",
+      "category": "unclear",
+      "stated_background": null,
+      "full_time": "not stated",
+      "relevance_to_business": "[ONE LINE OF RELEVANCE TO THIS BUSINESS]",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ]
+    }
+  ],
+  "strengths": [
+    {
+      "title": "[STRENGTH 1 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. EVERY CLAIM ABOUT A PERSON CARRIES A SLIDE NUMBER AND A VERBATIM QUOTE.]",
+      "severity": null,
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[STRENGTH 2 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. EVERY CLAIM ABOUT A PERSON CARRIES A SLIDE NUMBER AND A VERBATIM QUOTE.]",
+      "severity": null,
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[STRENGTH 3 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. EVERY CLAIM ABOUT A PERSON CARRIES A SLIDE NUMBER AND A VERBATIM QUOTE.]",
+      "severity": null,
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[STRENGTH 4 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. EVERY CLAIM ABOUT A PERSON CARRIES A SLIDE NUMBER AND A VERBATIM QUOTE.]",
+      "severity": null,
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[STRENGTH 5 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. EVERY CLAIM ABOUT A PERSON CARRIES A SLIDE NUMBER AND A VERBATIM QUOTE.]",
+      "severity": null,
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    }
+  ],
+  "weaknesses": [
+    {
+      "title": "[WEAKNESS 1 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. RANKED BY SEVERITY: CRITICAL, THEN HIGH, THEN MEDIUM.]",
+      "severity": "critical",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[WEAKNESS 2 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. RANKED BY SEVERITY: CRITICAL, THEN HIGH, THEN MEDIUM.]",
+      "severity": "critical",
+      "citations": [],
+      "is_absence": true
+    },
+    {
+      "title": "[WEAKNESS 3 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. RANKED BY SEVERITY: CRITICAL, THEN HIGH, THEN MEDIUM.]",
+      "severity": "high",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    },
+    {
+      "title": "[WEAKNESS 4 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. RANKED BY SEVERITY: CRITICAL, THEN HIGH, THEN MEDIUM.]",
+      "severity": "high",
+      "citations": [],
+      "is_absence": true
+    },
+    {
+      "title": "[WEAKNESS 5 — BOLD LEAD-IN, MAX 70 CHARS]",
+      "detail": "[ONE OR TWO SENTENCES OF SUBSTANCE, MAX 280 CHARACTERS. RANKED BY SEVERITY: CRITICAL, THEN HIGH, THEN MEDIUM.]",
+      "severity": "medium",
+      "citations": [
+        {
+          "slide": 1,
+          "quote": "[VERBATIM QUOTE FROM THE CITED SLIDE, MAX 200 CHARS]"
+        }
+      ],
+      "is_absence": false
+    }
+  ],
+  "composition_gaps": [
+    "[ROLE 1 THIS BUSINESS NEEDS THAT THE ROSTER DOES NOT COVER]",
+    "[ROLE 2 THIS BUSINESS NEEDS THAT THE ROSTER DOES NOT COVER]",
+    "[ROLE 3 THIS BUSINESS NEEDS THAT THE ROSTER DOES NOT COVER]",
+    "[ROLE 4 THIS BUSINESS NEEDS THAT THE ROSTER DOES NOT COVER]",
+    "[ROLE 5 THIS BUSINESS NEEDS THAT THE ROSTER DOES NOT COVER]"
+  ],
+  "diligence_questions": [
+    "[DILIGENCE QUESTION 1 — SHARP, ANSWERABLE IN A PARTNER MEETING, TARGETING A GAP IDENTIFIED ABOVE]",
+    "[DILIGENCE QUESTION 2 — SHARP, ANSWERABLE IN A PARTNER MEETING, TARGETING A GAP IDENTIFIED ABOVE]",
+    "[DILIGENCE QUESTION 3 — SHARP, ANSWERABLE IN A PARTNER MEETING, TARGETING A GAP IDENTIFIED ABOVE]"
+  ],
+  "scores": {
+    "founder_market_fit": 0,
+    "founder_product_fit": 0,
+    "track_record": 0,
+    "team_completeness": 0,
+    "commitment_structure": 0
+  },
+  "evidence_quality": 0,
+  "unverifiable_claims": [
+    "[CLAIM 1 THE DECK ASSERTS THAT AN INVESTOR MUST CHECK ELSEWHERE]",
+    "[CLAIM 2 THE DECK ASSERTS THAT AN INVESTOR MUST CHECK ELSEWHERE]",
+    "[CLAIM 3 THE DECK ASSERTS THAT AN INVESTOR MUST CHECK ELSEWHERE]",
+    "[CLAIM 4 THE DECK ASSERTS THAT AN INVESTOR MUST CHECK ELSEWHERE]"
+  ]
+}
