@@ -432,13 +432,68 @@ def test_icons_stay_reachable_behind_the_password_gate(locked_client: TestClient
 def test_head_references_every_icon(client: TestClient) -> None:
     head = client.get("/").text.split("</head>")[0]
     for ref in (
-        '<link rel="icon" href="/favicon.ico"',
-        '/static/favicon-32.png',
-        '/static/favicon-16.png',
+        '<link rel="icon" href="/favicon.ico',
+        "/static/favicon-32.png",
+        "/static/favicon-16.png",
         'rel="apple-touch-icon"',
         '<meta name="theme-color" content="#0B1526">',
     ):
         assert ref in head, f"missing from <head>: {ref}"
+
+
+def test_icon_links_carry_the_asset_revision(client: TestClient) -> None:
+    """Browsers cache favicons hard; a redeploy must change the URL to force a refetch."""
+    from onepager.web.app import ASSET_REV
+
+    head = client.get("/").text.split("</head>")[0]
+    assert head.count(f"?v={ASSET_REV}") == 4
+    assert "__ASSET_REV__" not in head, "placeholder was not substituted"
+
+
+def test_asset_revision_tracks_icon_content(tmp_path, monkeypatch) -> None:
+    """Stable across rebuilds of an unchanged mark; different the moment it changes."""
+    from onepager.web import app as web_app
+
+    icon = web_app.STATIC_DIR / "favicon-16.png"
+    original = icon.read_bytes()
+    before = web_app._asset_rev()
+
+    icon.touch()  # mtime moves, content does not
+    assert web_app._asset_rev() == before, "revision must not churn on rebuild"
+
+    try:
+        icon.write_bytes(original + b"tamper")
+        assert web_app._asset_rev() != before
+    finally:
+        icon.write_bytes(original)
+    assert web_app._asset_rev() == before
+
+
+def test_asset_revision_survives_missing_icons(monkeypatch, tmp_path) -> None:
+    from onepager.web import app as web_app
+
+    monkeypatch.setattr(web_app, "STATIC_DIR", tmp_path / "nope")
+    assert web_app._asset_rev()  # falls back rather than raising
+
+
+def test_healthz_reports_the_shipped_icon_count(client: TestClient) -> None:
+    """So a stale deploy is diagnosable from outside, without guessing."""
+    text = client.get("/healthz").text
+    assert "icons=" in text and "asset_rev=" in text
+    count = int(text.split("icons=")[1].split()[0])
+    assert count >= 4, f"deployed build carries only {count} icons"
+
+
+def test_healthz_reports_email_state(client: TestClient) -> None:
+    assert "email=" in client.get("/healthz").text
+
+
+def test_missing_icon_404s_rather_than_crashing(client: TestClient, monkeypatch) -> None:
+    from onepager.web import app as web_app
+
+    monkeypatch.setattr(web_app, "STATIC_DIR", Path("/definitely/not/here"))
+    assert client.get("/favicon.ico").status_code == 404
+    assert client.get("/healthz").status_code == 200  # the app itself stays up
 
 
 def test_shipped_icons_are_valid_images_at_the_declared_sizes() -> None:

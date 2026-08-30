@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 
 _TOKEN = "__ONEPAGER_CONFIG__"
+_REV_TOKEN = "__ASSET_REV__"
 
 _PAGE = """<!doctype html>
 <html lang="en">
@@ -24,10 +25,10 @@ _PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TEN Capital Network — Deck to One-Pager</title>
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.ico?v=__ASSET_REV__" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png?v=__ASSET_REV__">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16.png?v=__ASSET_REV__">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=__ASSET_REV__">
 <meta name="theme-color" content="#0B1526">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -555,6 +556,7 @@ def render_page(
     max_upload_mb: int,
     job_ttl_minutes: int,
     email_to: list[str] | None = None,
+    asset_rev: str = "0",
 ) -> str:
     """Render the page with server-side limits injected, so the UI cannot overpromise."""
     config = {
@@ -563,4 +565,4 @@ def render_page(
         "disclosure_html": disclosure_html(job_ttl_minutes, email_to),
         "email_to": email_to or [],
     }
-    return _PAGE.replace(_TOKEN, json.dumps(config))
+    return _PAGE.replace(_TOKEN, json.dumps(config)).replace(_REV_TOKEN, asset_rev)

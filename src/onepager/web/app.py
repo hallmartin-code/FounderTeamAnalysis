@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import hashlib
 import secrets
 import tempfile
 from collections.abc import AsyncIterator
@@ -41,14 +42,37 @@ from ..config import api_key as configured_api_key
 from ..notify import is_configured as email_configured
 from ..render import render
 from ..template import blank_analysis
+from ..util.logging import get_logger
 from .jobs import JobStore
 from .pipeline import run_job
 from .ui import render_page
+
+_log = get_logger()
 
 SUPPORTED_SUFFIXES = (".pdf", ".pptx", ".ppt")
 _SWEEP_INTERVAL_SECONDS = 300
 
 STATIC_DIR = Path(__file__).parent / "static"
+
+
+def _asset_rev() -> str:
+    """Content fingerprint of the icon set, used to bust the browser favicon cache.
+
+    Browsers cache favicons far more aggressively than ordinary assets, and will
+    happily keep showing a stale one (or a stale absence) across deploys. Changing
+    the query string is the only reliable way to force a refetch. Hashing content
+    rather than mtimes keeps the value stable across rebuilds of an unchanged mark.
+    """
+    digest = hashlib.sha256(__version__.encode())
+    try:
+        for icon in sorted(STATIC_DIR.glob("favicon*")):
+            digest.update(icon.read_bytes())
+    except OSError:  # pragma: no cover - unreadable build
+        return __version__
+    return digest.hexdigest()[:8]
+
+
+ASSET_REV = _asset_rev()
 #: Brand assets change only when the mark does; let clients hold them for a day.
 _ICON_CACHE = "public, max-age=86400"
 
@@ -98,11 +122,19 @@ def create_app() -> FastAPI:
 
     gated = APIRouter(dependencies=[Depends(_require_auth)])
 
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    # A missing brand asset must not take the analyzer down: StaticFiles raises at
+    # construction if the directory is absent, so guard the mount rather than the app.
+    if STATIC_DIR.is_dir():
+        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    else:  # pragma: no cover - only reachable from a broken build
+        _log.error("brand assets missing at %s; icons will 404", STATIC_DIR)
 
     def _icon(name: str, media_type: str) -> FileResponse:
+        path = STATIC_DIR / name
+        if not path.is_file():
+            raise HTTPException(status.HTTP_404_NOT_FOUND, f"{name} is not in this build")
         return FileResponse(
-            STATIC_DIR / name,
+            path,
             media_type=media_type,
             headers={"Cache-Control": _ICON_CACHE},
         )
@@ -126,6 +158,7 @@ def create_app() -> FastAPI:
                 max_upload_mb=MAX_UPLOAD_MB,
                 job_ttl_minutes=JOB_TTL_MINUTES,
                 email_to=resend_recipients() if email_configured() else None,
+                asset_rev=ASSET_REV,
             )
         )
 
@@ -133,9 +166,12 @@ def create_app() -> FastAPI:
     async def healthz() -> PlainTextResponse:
         """Unauthenticated so Railway can health-check without the password."""
         ready = configured_api_key() is not None
+        icons = len(list(STATIC_DIR.glob("favicon*"))) if STATIC_DIR.is_dir() else 0
         body = (
             f"ok version={__version__} model={model_id()} "
-            f"api_key={'set' if ready else 'MISSING'}"
+            f"api_key={'set' if ready else 'MISSING'} "
+            f"email={'on' if email_configured() else 'off'} "
+            f"icons={icons} asset_rev={ASSET_REV}"
         )
         return PlainTextResponse(body, status_code=200 if ready else 503)
 
