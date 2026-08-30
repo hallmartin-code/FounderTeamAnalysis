@@ -29,8 +29,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Res
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 from .. import __version__
-from ..config import JOB_TTL_MINUTES, MAX_UPLOAD_MB, app_password, model_id
+from ..config import JOB_TTL_MINUTES, MAX_UPLOAD_MB, app_password, model_id, resend_recipients
 from ..config import api_key as configured_api_key
+from ..notify import is_configured as email_configured
 from ..render import render
 from ..template import blank_analysis
 from .jobs import JobStore
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
                 accept=SUPPORTED_SUFFIXES,
                 max_upload_mb=MAX_UPLOAD_MB,
                 job_ttl_minutes=JOB_TTL_MINUTES,
+                email_to=resend_recipients() if email_configured() else None,
             )
         )
 

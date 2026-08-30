@@ -15,6 +15,8 @@ from ..analyze import AnalysisClient, AuthFailure, BadModelOutput
 from ..config import ExitCode
 from ..extract import ExtractionError, NoContentError, extract
 from ..models import TeamAnalysis
+from ..notify import is_configured as email_configured
+from ..notify import send_onepager
 from ..render import RenderError, render
 from .jobs import Job, JobStore
 
@@ -71,9 +73,28 @@ def run_job(
             notes = list(job.notes) if job else []
             notes.extend(m for m in collector.messages if "one-page fit" in m)
 
+            # Notification is a side channel: a failed send must not fail the job.
+            emailed = False
+            if email_configured():
+                result = send_onepager(
+                    analysis,
+                    pdf,
+                    filename,
+                    analysis_json=analysis.model_dump_json(indent=2),
+                    meta_line=(
+                        f"{len(deck.slides)} slides - "
+                        f"{client.usage.input_tokens} in / {client.usage.output_tokens} out - "
+                        f"~${client.usage.cost_usd:.3f}"
+                    ),
+                    notes=notes,
+                )
+                emailed = result.sent
+                notes.append(result.note)
+
             store.update(
                 job_id,
                 status="done",
+                emailed=emailed,
                 pdf=pdf,
                 analysis_json=analysis.model_dump_json(indent=2),
                 company_name=analysis.company_name,

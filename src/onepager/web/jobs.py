@@ -52,6 +52,8 @@ class Job:
     input_tokens: int = 0
     output_tokens: int = 0
     cost_usd: float = 0.0
+    emailed: bool = False
+    """Whether a copy was successfully mailed to the configured recipients."""
 
     @property
     def elapsed(self) -> float:
@@ -82,6 +84,7 @@ class Job:
             "has_pdf": self.pdf is not None,
             "tokens": {"input": self.input_tokens, "output": self.output_tokens},
             "cost_usd": round(self.cost_usd, 4),
+            "emailed": self.emailed,
         }
 
 

@@ -55,6 +55,11 @@ Or use the dashboard: **New Project → Deploy from GitHub repo**.
 railway variables --set "ANTHROPIC_API_KEY=sk-ant-api03-YOUR-NEW-KEY"
 railway variables --set "ANTHROPIC_MODEL=claude-opus-5"
 railway variables --set "APP_PASSWORD=pick-a-long-random-passphrase"
+
+# Email delivery of each finished one-pager
+railway variables --set "RESEND_API_KEY=re_YOUR-NEW-KEY"
+railway variables --set "RESEND_TO=Info@tencapital.group"
+railway variables --set "RESEND_FROM=TEN Capital One-Pager <onepager@tencapital.group>"
 ```
 
 | Variable | Required | Default | Notes |
@@ -64,6 +69,10 @@ railway variables --set "APP_PASSWORD=pick-a-long-random-passphrase"
 | `APP_PASSWORD` | **strongly recommended** | unset | Unset = the URL is public and **anyone can spend your API credit** |
 | `MAX_UPLOAD_MB` | no | `64` | Image-heavy decks run 50 MB+ |
 | `JOB_TTL_MINUTES` | no | `60` | How long a finished PDF stays in memory |
+| `RESEND_API_KEY` | no | unset | Unset disables email; the app still works |
+| `RESEND_TO` | no | `Info@tencapital.group` | Comma-separated for several recipients |
+| `RESEND_FROM` | no | `onepager@tencapital.group` | **Domain must be verified in Resend** |
+| `RESEND_ATTACH_JSON` | no | `true` | Attach the analysis JSON beside the PDF |
 | `PORT` | no | injected | Railway sets this; the container reads it |
 
 ## 4. Deploy
@@ -121,6 +130,20 @@ matters — without it, a public URL is an open tap on your API account.
 **Nothing is persisted.** Uploads are written to a temp directory that is deleted when the
 job ends; results are held in memory until the TTL expires. There is no database and no
 object storage.
+
+**Email is a side channel, never the deliverable.** After each successful analysis the
+one-pager PDF and analysis JSON are emailed to `RESEND_TO` via Resend. If delivery fails the
+job still succeeds, the browser download is unaffected, and the reason is recorded in the
+job's notes and shown on the results panel. **The uploaded deck itself is never emailed.**
+
+**The FROM domain must be verified in Resend.** `tencapital.group` is verified today. If you
+change `RESEND_FROM` to an unverified domain, Resend rejects every send with a 4xx and the
+app will report `email not sent` on every job while continuing to produce PDFs normally.
+
+**The on-page disclosure follows the config.** With `RESEND_API_KEY` set, the page tells
+users a copy is emailed and names the recipient; with it unset, it says nothing is emailed.
+Neither wording is hardcoded, so the promise shown to a founder always matches what the
+deployment actually does.
 
 **Legacy `.ppt` and image-only `.pptx` need LibreOffice.** The Dockerfile has the
 `apt-get install libreoffice-impress` line commented out because it adds ~450 MB. Uncomment

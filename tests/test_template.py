@@ -160,8 +160,13 @@ def test_template_command_creates_missing_directories(tmp_path: Path) -> None:
 
 
 def test_committed_template_matches_the_current_renderer(tmp_path: Path) -> None:
-    """docs/onepager_template.pdf is generated, not hand-maintained. Keep it in step."""
+    """docs/onepager_template.pdf is generated, not hand-maintained. Keep it in step.
+
+    Generation dates are normalised out: the committed artifact carries the date it was
+    built, and comparing that would fail on every day but one.
+    """
     committed = Path(__file__).parents[1] / "docs" / "onepager_template.pdf"
     if not committed.exists():
         pytest.skip("docs template not generated in this checkout")
-    assert _text(committed) == _text(_rendered(tmp_path))
+    undated = lambda t: re.sub(r"\d{2} \w{3} \d{4}", "<DATE>", t)  # noqa: E731
+    assert undated(_text(committed)) == undated(_text(_rendered(tmp_path)))

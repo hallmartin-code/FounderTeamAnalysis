@@ -72,6 +72,34 @@ MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB") or 64)
 JOB_TTL_MINUTES = int(os.getenv("JOB_TTL_MINUTES") or 60)
 
 
+# --- email notification (Resend) ---------------------------------------------------
+
+RESEND_ENDPOINT = "https://api.resend.com/emails"
+#: Attach the raw analysis JSON alongside the PDF.
+RESEND_ATTACH_JSON = (os.getenv("RESEND_ATTACH_JSON") or "true").strip().lower() not in (
+    "0",
+    "false",
+    "no",
+)
+DEFAULT_RESEND_FROM = "TEN Capital One-Pager <onepager@tencapital.group>"
+DEFAULT_RESEND_TO = "Info@tencapital.group"
+
+
+def resend_key() -> str | None:
+    return (os.getenv("RESEND_API_KEY") or "").strip() or None
+
+
+def resend_from() -> str:
+    """Sender address. Its domain must be verified in Resend or delivery is rejected."""
+    return (os.getenv("RESEND_FROM") or "").strip() or DEFAULT_RESEND_FROM
+
+
+def resend_recipients() -> list[str]:
+    """Recipients, comma-separated in RESEND_TO."""
+    raw = (os.getenv("RESEND_TO") or DEFAULT_RESEND_TO).strip()
+    return [addr.strip() for addr in raw.split(",") if addr.strip()]
+
+
 def app_password() -> str | None:
     """Shared secret gating the web app. Unset means the app is open to anyone."""
     return (os.getenv("APP_PASSWORD") or "").strip() or None

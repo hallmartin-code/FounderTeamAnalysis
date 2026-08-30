@@ -24,6 +24,7 @@ LIVE_KEY_FRAGMENT = "sk-ant-"
 def client(monkeypatch) -> TestClient:
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-key-not-real")
     monkeypatch.delenv("APP_PASSWORD", raising=False)
+    monkeypatch.delenv("RESEND_API_KEY", raising=False)
     with TestClient(create_app()) as c:
         yield c
 
@@ -338,25 +339,36 @@ def test_page_advertises_the_real_upload_cap(client: TestClient) -> None:
 
 
 def test_page_makes_no_claim_the_app_does_not_honour(client: TestClient) -> None:
-    """No email delivery, no personal address, no .docx - the app does none of these."""
+    """No personal address, no .docx - the mockup advertised both; we support neither."""
     body = client.get("/").text.lower()
-    forbidden = (
-        "is emailed to",      # the mockup promised a copy by email
-        "a copy of every",
-        "mailto:",
-        "@gmail.com",
-        ".docx",              # the mockup advertised a format we cannot read
-    )
-    for claim in forbidden:
+    for claim in ("mailto:", "@gmail.com", ".docx"):
         assert claim not in body, f"page claims {claim!r}, which the backend does not do"
-    # "emailed" may appear only in the negative.
-    assert body.count("emailed") == body.count("nothing is emailed")
+
+
+def test_disclosure_promises_email_only_when_email_is_configured(monkeypatch) -> None:
+    """The disclosure is a data-handling promise; it must track the actual config."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    monkeypatch.delenv("APP_PASSWORD", raising=False)
+    monkeypatch.delenv("RESEND_API_KEY", raising=False)
+    with TestClient(create_app()) as c:
+        off = _page_config(c)
+    assert off["email_to"] == []
+    assert "nothing is emailed" in off["disclosure_html"].lower()
+
+    monkeypatch.setenv("RESEND_API_KEY", "re_test_key")
+    monkeypatch.setenv("RESEND_TO", "Info@tencapital.group")
+    with TestClient(create_app()) as c:
+        on = _page_config(c)
+    assert on["email_to"] == ["Info@tencapital.group"]
+    disclosure = on["disclosure_html"].lower()
+    assert "emailed to" in disclosure
+    assert "info@tencapital.group" in disclosure
+    assert "the deck itself is never emailed" in disclosure
 
 
 def test_disclosure_states_what_actually_happens(client: TestClient) -> None:
     disclosure = _page_config(client)["disclosure_html"].lower()
     assert "deleted" in disclosure
-    assert "nothing is emailed" in disclosure
     assert "claude api" in disclosure
 
 

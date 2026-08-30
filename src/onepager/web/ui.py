@@ -229,6 +229,8 @@ _PAGE = """<!doctype html>
   .notice-warn{ background:rgba(238,90,78,0.09); border-color:rgba(238,90,78,0.4); color:#FFC9C3; }
   .notice-warn b{ color:var(--coral-soft); }
   .notice-note{ background:rgba(243,162,42,0.08); border-color:rgba(243,162,42,0.34); color:#F6DDB4; }
+  .notice-sent{ background:rgba(53,190,187,0.09); border-color:rgba(53,190,187,0.38); color:#BFEFEE; }
+  .notice-sent b{ color:var(--teal); }
   .notice-note b{ color:var(--amber); }
   .notice ul{ margin:7px 0 0; padding-left:19px; }
   .notice li{ margin-top:3px; }
@@ -450,6 +452,13 @@ _PAGE = """<!doctype html>
         job.evidence_quality + "/100. This deck does not contain enough team information " +
         "to score reliably; treat the score as provisional.</div>"
       : "";
+    const mailed = job.emailed
+      ? '<div class="notice notice-sent"><b>Emailed</b> — a copy has been sent to ' +
+        esc(CFG.email_to.join(", ")) + ".</div>"
+      : (CFG.email_to.length
+          ? '<div class="notice notice-note"><b>Not emailed</b> — delivery did not ' +
+            "succeed; see the notes below. Your download is unaffected.</div>"
+          : "");
     const notes = (job.notes && job.notes.length)
       ? '<div class="notice notice-note"><b>Notes</b><ul>' +
         job.notes.map((n) => "<li>" + esc(n) + "</li>").join("") + "</ul></div>"
@@ -464,7 +473,7 @@ _PAGE = """<!doctype html>
       '<div class="tiles">' +
         tile(job.team_score, "Team score / 100") +
         tile(job.evidence_quality, "Evidence quality") +
-      "</div>" + warn + notes +
+      "</div>" + warn + mailed + notes +
       '<a class="cta" style="display:block;text-align:center;text-decoration:none" ' +
         'href="/api/jobs/' + id + '/pdf">Download one-pager PDF</a>' +
       '<div class="btn-row">' +
@@ -514,28 +523,39 @@ _PAGE = """<!doctype html>
 </html>
 """
 
-#: What the page tells a founder about their deck. It must stay true of the running app:
-#: uploads go to a temp file that is deleted when the job ends, results live in memory
-#: until the TTL expires, and nothing is emailed or persisted anywhere.
-DISCLOSURE_HTML = (
+#: What the page tells a founder about their deck. Both variants must stay true of the
+#: running app, which is why the recipient list comes from the server rather than the copy.
+DISCLOSURE_BASE = (
     "The deck is processed on the server and passed to Anthropic's Claude API for analysis. "
     "It is written to a temporary file that is deleted as soon as the job finishes, and the "
     "generated PDF is held in memory for <code>{ttl} minutes</code> before it is discarded. "
-    "Nothing is emailed, stored, or retained after that."
 )
+DISCLOSURE_NO_EMAIL = "Nothing is emailed, stored, or retained after that."
+DISCLOSURE_EMAIL = (
+    "A copy of the one-pager and its analysis JSON is emailed to <code>{to}</code>. "
+    "The deck itself is never emailed and is not retained."
+)
+
+
+def disclosure_html(job_ttl_minutes: int, email_to: list[str] | None) -> str:
+    """Say exactly what this deployment does with an uploaded deck."""
+    base = DISCLOSURE_BASE.format(ttl=job_ttl_minutes)
+    if email_to:
+        return base + DISCLOSURE_EMAIL.format(to=", ".join(email_to))
+    return base + DISCLOSURE_NO_EMAIL
 
 
 def render_page(
     accept: tuple[str, ...],
     max_upload_mb: int,
     job_ttl_minutes: int,
-    disclosure_html: str | None = None,
+    email_to: list[str] | None = None,
 ) -> str:
     """Render the page with server-side limits injected, so the UI cannot overpromise."""
     config = {
         "accept": list(accept),
         "max_upload_mb": max_upload_mb,
-        "disclosure_html": disclosure_html
-        or DISCLOSURE_HTML.format(ttl=job_ttl_minutes),
+        "disclosure_html": disclosure_html(job_ttl_minutes, email_to),
+        "email_to": email_to or [],
     }
     return _PAGE.replace(_TOKEN, json.dumps(config))

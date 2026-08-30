@@ -111,6 +111,12 @@ Deployment to Railway is documented in [DEPLOY.md](DEPLOY.md).
 Set `APP_PASSWORD` to gate everything but `/healthz` behind HTTP Basic. Leave it unset
 only on localhost - a public URL without it lets anyone spend your API credit.
 
+**Email delivery.** Set `RESEND_API_KEY` and every finished one-pager is emailed to
+`RESEND_TO` (default `Info@tencapital.group`) with the PDF and analysis JSON attached.
+The uploaded deck is never emailed. Delivery is a side channel: if it fails, the job
+still succeeds and the reason appears in the results panel. Leave `RESEND_API_KEY`
+unset to disable email entirely - the on-page disclosure updates itself to match.
+
 ### Exit codes
 
 | Code | Meaning |
@@ -194,7 +200,7 @@ Anything sacrificed is logged as a `WARNING` to stderr naming exactly what was d
 ## Development
 
 ```bash
-pytest          # test suite (164 tests, no API key or real deck required)
+pytest          # test suite (195 tests, no API key or real deck required)
 ruff check .    # lint
 ruff format .   # format
 ```
@@ -202,7 +208,8 @@ ruff format .   # format
 The whole suite runs offline: fixtures synthesize a text PDF, an image-only PDF, and a
 PPTX at test time, and the Anthropic client is mocked. `tests/test_cli.py` asserts that the
 `--from-json` and `--dry-run` paths make no API call at all, and `tests/test_web.py`
-drives the HTTP layer with the pipeline stubbed out.
+drives the HTTP layer with the pipeline stubbed out. `tests/test_notify.py` covers email
+delivery with the Resend call mocked, so no mail is sent while testing.
 
 ---
 
