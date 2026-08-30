@@ -107,6 +107,7 @@ Deployment to Railway is documented in [DEPLOY.md](DEPLOY.md).
 | `GET /api/jobs/{id}/pdf` | gated | Download the one-pager |
 | `GET /api/jobs/{id}/json` | gated | Download the analysis JSON |
 | `GET /api/template.pdf` | gated | The blank template |
+| `GET /favicon.ico` | open | Brand mark; also `/apple-touch-icon.png`, `/static/*` |
 
 Set `APP_PASSWORD` to gate everything but `/healthz` behind HTTP Basic. Leave it unset
 only on localhost - a public URL without it lets anyone spend your API credit.
@@ -200,7 +201,7 @@ Anything sacrificed is logged as a `WARNING` to stderr naming exactly what was d
 ## Development
 
 ```bash
-pytest          # test suite (195 tests, no API key or real deck required)
+pytest          # test suite (206 tests, no API key or real deck required)
 ruff check .    # lint
 ruff format .   # format
 ```
@@ -210,6 +211,27 @@ PPTX at test time, and the Anthropic client is mocked. `tests/test_cli.py` asser
 `--from-json` and `--dry-run` paths make no API call at all, and `tests/test_web.py`
 drives the HTTP layer with the pipeline stubbed out. `tests/test_notify.py` covers email
 delivery with the Resend call mocked, so no mail is sent while testing.
+
+---
+
+## Brand assets
+
+`src/onepager/web/static/` holds the favicon set. The source of record is
+`logo-source.png` — the TEN Capital mark as delivered; everything else is generated
+from it:
+
+```bash
+python tools/make_favicon.py
+```
+
+That writes `favicon.ico` (16/32/48/64), `favicon-{16,32,48,192}.png`, and
+`apple-touch-icon.png` (180 px on the navy-950 ground, because iOS composites
+transparency unpredictably). All outputs are checked in — rerun only when the mark
+changes. They ship inside the wheel, so the Docker image carries them with no extra
+build step.
+
+Icons are served ungated, so the mark still renders on the browser's own password
+prompt.
 
 ---
 

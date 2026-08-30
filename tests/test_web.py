@@ -392,3 +392,86 @@ def _page_config(client: TestClient) -> dict:
         r'<script id="cfg" type="application/json">(.*?)</script>', body, re.S
     ).group(1)
     return json.loads(raw)
+
+
+# --- brand assets ------------------------------------------------------------------------
+
+
+def test_favicon_is_served_from_the_root(client: TestClient) -> None:
+    r = client.get("/favicon.ico")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "image/x-icon"
+    assert r.content[:4] == b"\x00\x00\x01\x00", "not a real .ico"
+
+
+def test_apple_touch_icon_is_served_from_the_root(client: TestClient) -> None:
+    r = client.get("/apple-touch-icon.png")
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "image/png"
+    assert r.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.parametrize("name", ["favicon-16.png", "favicon-32.png", "favicon-192.png"])
+def test_static_pngs_are_served(client: TestClient, name: str) -> None:
+    r = client.get(f"/static/{name}")
+    assert r.status_code == 200
+    assert r.content[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_icons_are_cacheable(client: TestClient) -> None:
+    assert "max-age" in client.get("/favicon.ico").headers.get("cache-control", "")
+
+
+def test_icons_stay_reachable_behind_the_password_gate(locked_client: TestClient) -> None:
+    """The icon must render on the browser's own auth prompt, before any credentials."""
+    for path in ("/favicon.ico", "/apple-touch-icon.png", "/static/favicon-32.png"):
+        assert locked_client.get(path).status_code == 200, path
+    assert locked_client.get("/").status_code == 401  # the page itself is still gated
+
+
+def test_head_references_every_icon(client: TestClient) -> None:
+    head = client.get("/").text.split("</head>")[0]
+    for ref in (
+        '<link rel="icon" href="/favicon.ico"',
+        '/static/favicon-32.png',
+        '/static/favicon-16.png',
+        'rel="apple-touch-icon"',
+        '<meta name="theme-color" content="#0B1526">',
+    ):
+        assert ref in head, f"missing from <head>: {ref}"
+
+
+def test_shipped_icons_are_valid_images_at_the_declared_sizes() -> None:
+    from PIL import Image
+
+    from onepager.web.app import STATIC_DIR
+
+    for name, size in (
+        ("favicon-16.png", 16),
+        ("favicon-32.png", 32),
+        ("favicon-48.png", 48),
+        ("favicon-192.png", 192),
+        ("apple-touch-icon.png", 180),
+    ):
+        with Image.open(STATIC_DIR / name) as im:
+            assert im.size == (size, size), f"{name} is {im.size}, declared {size}"
+
+
+def test_ico_packs_the_sizes_windows_and_browsers_ask_for() -> None:
+    from PIL import Image
+
+    from onepager.web.app import STATIC_DIR
+
+    with Image.open(STATIC_DIR / "favicon.ico") as im:
+        assert {(16, 16), (32, 32), (48, 48)} <= set(im.info["sizes"])
+
+
+def test_apple_touch_icon_is_opaque() -> None:
+    """iOS composites transparency unpredictably; this one needs a real ground."""
+    from PIL import Image
+
+    from onepager.web.app import STATIC_DIR
+
+    with Image.open(STATIC_DIR / "apple-touch-icon.png") as im:
+        rgba = im.convert("RGBA")
+        assert rgba.getpixel((0, 0)) == (11, 21, 38, 255)  # navy-950

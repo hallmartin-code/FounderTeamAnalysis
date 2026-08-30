@@ -25,8 +25,15 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    Response,
+)
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.staticfiles import StaticFiles
 
 from .. import __version__
 from ..config import JOB_TTL_MINUTES, MAX_UPLOAD_MB, app_password, model_id, resend_recipients
@@ -40,6 +47,10 @@ from .ui import render_page
 
 SUPPORTED_SUFFIXES = (".pdf", ".pptx", ".ppt")
 _SWEEP_INTERVAL_SECONDS = 300
+
+STATIC_DIR = Path(__file__).parent / "static"
+#: Brand assets change only when the mark does; let clients hold them for a day.
+_ICON_CACHE = "public, max-age=86400"
 
 _security = HTTPBasic(auto_error=False)
 
@@ -86,6 +97,24 @@ def create_app() -> FastAPI:
     )
 
     gated = APIRouter(dependencies=[Depends(_require_auth)])
+
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+    def _icon(name: str, media_type: str) -> FileResponse:
+        return FileResponse(
+            STATIC_DIR / name,
+            media_type=media_type,
+            headers={"Cache-Control": _ICON_CACHE},
+        )
+
+    # Browsers and iOS request these from the root regardless of what the HTML says.
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon() -> FileResponse:
+        return _icon("favicon.ico", "image/x-icon")
+
+    @app.get("/apple-touch-icon.png", include_in_schema=False)
+    async def apple_touch_icon() -> FileResponse:
+        return _icon("apple-touch-icon.png", "image/png")
 
     # --- pages -------------------------------------------------------------------------
 

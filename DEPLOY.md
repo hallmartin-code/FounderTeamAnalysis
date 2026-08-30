@@ -106,6 +106,7 @@ upload a deck.
 | `GET /api/jobs/{id}/json` | gated | Download the analysis JSON |
 | `GET /api/template.pdf` | gated | The blank document template |
 | `GET /api/docs` | gated | OpenAPI docs |
+| `GET /favicon.ico` | **open** | Brand mark; also `/apple-touch-icon.png` and `/static/*` |
 
 An analysis takes **50–90 seconds**, which is why uploads create a background job and the
 page polls rather than holding the request open.
