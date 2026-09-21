@@ -24,7 +24,7 @@ _PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TEN Capital Network — Deck to One-Pager</title>
+<title>TEN Capital Network — Founder &amp; Team Analysis</title>
 <link rel="icon" href="/favicon.ico?v=__ASSET_REV__" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png?v=__ASSET_REV__">
 <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16.png?v=__ASSET_REV__">
@@ -289,7 +289,7 @@ _PAGE = """<!doctype html>
   </div>
 
   <form class="card" id="form">
-    <div class="eyebrow">Deck Analyzer</div>
+    <div class="eyebrow">Founder &amp; Team Analysis</div>
     <h1>Pitch Deck<span class="arrow">&rarr;</span><span class="to">Founder&nbsp;&amp;&nbsp;Team One&#8209;Pager</span></h1>
     <p class="lede">
       Upload a pitch deck and get a single-page investor PDF answering one question:

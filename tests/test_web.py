@@ -108,7 +108,8 @@ def test_healthz_never_leaks_the_key(client: TestClient) -> None:
 def test_index_serves_the_upload_page(client: TestClient) -> None:
     r = client.get("/")
     assert r.status_code == 200
-    assert "Deck Analyzer" in r.text
+    assert "Founder &amp; Team Analysis" in r.text
+    assert "Deck Analyzer" not in r.text
     assert "TEN Capital Network" in r.text
     assert "Generate one-pager PDF" in r.text
 
